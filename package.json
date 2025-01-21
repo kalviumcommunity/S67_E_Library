@@ -1,0 +1,14 @@
+{
+  "name": "s67_e_library",
+  "version": "1.0.0",
+  "description": "The **E-bookit** project is an e-library application built using the **MERN stack** (MongoDB, Express, React, Node.js). This project aims to create an online platform where users can browse, read, and manage novels, short stories, and other books in a digital format.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
