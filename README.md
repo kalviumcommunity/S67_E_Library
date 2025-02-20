@@ -16,3 +16,8 @@ The **E-bookit** project is an e-library application built using the **MERN stac
 ## Overview
 
 E-bookit is an online e-library platform that allows users to easily browse, read, and manage digital books, including novels, short stories, and other literary works. Built with the MERN stack (MongoDB, Express, React, Node.js), E-bookit offers a seamless and responsive user experience across devices. Key features include user authentication, custom reading lists, and the ability to view book details and content, making it a comprehensive digital reading hub for book lovers.
+
+
+
+#### E-bookit deployment link:
+    https://elibrary-r2de.vercel.app/
