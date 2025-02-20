@@ -19,5 +19,5 @@ E-bookit is an online e-library platform that allows users to easily browse, rea
 
 
 
-#### E-bookit deployment link:
-    https://elibrary-r2de.vercel.app/
+#### E-bookit deployment link: 
+https://elibrary-r2de.vercel.app/
