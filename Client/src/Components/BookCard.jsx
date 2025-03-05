@@ -1,43 +1,71 @@
-// import React from "react";
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';  // Importing axios for API request
 
-// const BookCard = ({ title, author, genre, coverImage }) => {
-//   return (
-//     <div className="max-w-xs bg-white shadow-lg rounded-2xl overflow-hidden p-4">
-//       <img src={coverImage} alt={title} className="w-full h-48 object-cover rounded-lg" />
-//       <div className="mt-4">
-//         <h2 className="text-xl font-bold">{title}</h2>
-//         <p className="text-gray-600">by {author}</p>
-//         <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded mt-2 text-sm">
-//           {genre}
-//         </span>
-//       </div>
-//     </div>
-//   );
-// };
+// BookCard Component (Individual Book Display)
+const BookCard = ({ title, author, genre, coverImage }) => (
+  <div className="max-w-xs rounded-lg overflow-hidden shadow-md bg-white">
+    <img src={coverImage} alt={`Cover of ${title}`} className="w-full h-48 object-cover" />
+    <div className="p-4">
+      <h3 className="text-xl font-bold">{title}</h3>
+      <p className="text-gray-700">By {author}</p>
+      <p className="text-sm text-gray-500">Genre: {genre}</p>
+    </div>
+  </div>
+);
 
-// export default BookCard;
+// BookList Component (Fetching and Displaying a List of Books)
+const BookList = () => {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetching books from backend API
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/api/all')  // Use GET for fetching the data
+      .then((response) => {
+        setBooks(response.data);  // Assuming the API returns an array of books
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching books:', error);
+        setError('Failed to load books');
+        setLoading(false);
+      });
+  }, []);
 
+  // Loading or Error State
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-import React from "react";
+  if (error) {
+    return <div>{error}</div>;
+  }
 
-const BookCard = ({ title, author, genre, coverImage }) => {
   return (
-    <div className="max-w-xs bg-white shadow-lg rounded-2xl overflow-hidden p-4 transition-transform transform hover:scale-105">
-      <img 
-        src={coverImage} 
-        alt={`Cover of ${title}`} 
-        className="w-full h-48 object-cover rounded-lg"
-      />
-      <div className="mt-4">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-gray-600">by {author}</p>
-        <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded mt-2 text-sm">
-          {genre}
-        </span>
-      </div>
+    <div className="flex flex-wrap gap-4 p-4">
+      {books.map((book) => (
+        <BookCard
+          key={book.id}
+          title={book.title}
+          author={book.author}
+          genre={book.genre || 'Fiction'}  // Default to 'Fiction' if genre is missing
+          coverImage={book.coverImage || 'https://via.placeholder.com/150'}  // Default placeholder image
+        />
+      ))}
     </div>
   );
 };
 
-export default BookCard;
+// PropTypes for validation (BookCard)
+BookCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  author: PropTypes.string.isRequired,
+  genre: PropTypes.string,
+  coverImage: PropTypes.string,
+};
+
+// Exporting the BookList as default
+export default BookList;
