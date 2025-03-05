@@ -2,6 +2,7 @@ const express = require('express');
 const { connectDB } = require('./db');  // Import connectDB function for MongoDB connection
 const bodyParser = require('body-parser');
 const routes = require('./routes'); 
+const cors = require('cors')
 
 const app = express();
 
@@ -11,6 +12,8 @@ const url = process.env.db_url;  // MongoDB URL from environment variables
 
 // Middleware to parse incoming JSON requests
 app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
 
 // Establish database connection
 app.listen(port, async () => {
