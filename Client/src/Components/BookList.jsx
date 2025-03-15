@@ -1,42 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import BookCard from './BookCard';
+  import { useEffect, useState } from "react";
+  import { useNavigate } from "react-router-dom";
+  import axios from "axios";
+  import BookCard from "./BookCard";
 
+  const BookList = () => {
+    const [books, setBooks] = useState([]);
+    const navigate = useNavigate();
 
-const BookList = () => {
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/all");
+        setBooks(response.data); // ✅ Overwrite books, do NOT append
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+    useEffect(() => {
+      fetchBooks();
+    }, []);
+    
+    useEffect(() => {
+      console.log("Updated books:", books); // 🔍 Debugging line
+    }, [books]);
+    
 
-  // Fetching books from backend API
-  useEffect(() => {
-    fetch('http://localhost:5000/api/all') // Your backend API URL here
-      .then(response => response.json())
-      .then(data => {
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching books:', error);
-        setLoading(false);
-      });
-  }, []);
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Available E-Books</h2>
+        <button
+          onClick={() => navigate("/add-book")}
+          className="mb-4 bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Add New Book
+        </button>
+        <div className="flex flex-wrap gap-4">
+          {books.map((book) => (
+            <BookCard key={book._id} {...book} />
+          ))}
+        </div>
+      </div>
+    );
+  };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-4">
-      {books.map(book => (
-        <BookCard
-          key={book.id}
-          title={book.title}
-          author={book.author}  
-          genre="Fiction"           
-          coverImage="https://via.placeholder.com/150"  
-        />
-      ))}
-    </div>
-  );
-};
-
-export default BookList;
+  export default BookList;
