@@ -1,8 +1,9 @@
 const express = require('express');
-const { connectDB } = require('./db');  // Import connectDB function for MongoDB connection
-const bodyParser = require('body-parser');
-const routes = require('./routes'); 
-const cors = require('cors')
+const connectDB  = require('./db');  // Import connectDB function for MongoDB connection
+
+const cors = require('cors');
+const router = require('./controllers/routes');
+
 
 const app = express();
 
@@ -11,7 +12,7 @@ const port = process.env.PORT || 5000;  // Ensure the environment variable for p
 const url = process.env.db_url;  // MongoDB URL from environment variables
 
 // Middleware to parse incoming JSON requests
-app.use(bodyParser.json());
+
 app.use(cors());
 app.use(express.json());
 
@@ -26,7 +27,7 @@ app.listen(port, async () => {
 });
 
 // Define CRUD routes
-app.use('/api', routes);  // Use the routes defined in routes.js (prefixed with '/api')
+app.use('/api', router);  // Use the routes defined in routes.js (prefixed with '/api')
 
 // Root endpoint (just a simple test endpoint)
 app.get('/', (req, res) => {

@@ -15,7 +15,7 @@ const BookCard = ({ title, author, genre, coverImage }) => (
 );
 
 // BookList Component (Fetching and Displaying a List of Books)
-const BookList = () => {
+const Booklist = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,4 +68,4 @@ BookCard.propTypes = {
 };
 
 // Exporting the BookList as default
-export default BookList;
+export default Booklist;
