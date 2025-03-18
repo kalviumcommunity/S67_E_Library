@@ -1,31 +1,39 @@
 const express = require("express");
 const router = express.Router();
-const BookModel = require("../model/BookSchema"); // Import your MongoDB model
+const BookModel = require("../model/BookSchema");
+const auth = require("../middleware/auth");
 
-// ✅ Create a new book
-router.post("/add", async (req, res) => {
+
+router.post("/add", auth, async (req, res) => {
   try {
-    const { title, author } = req.body;
+    const { title, author, genre, coverImage } = req.body;
 
-    // Check if the book already exists in MongoDB
+    // Validation: Check for missing fields
+    if (!title || !author || !genre || !coverImage) {
+      return res.status(400).json({ message: "Please fill in all fields" });
+    }
+
+    // Check if the book already exists
     const existingBook = await BookModel.findOne({ title, author });
-
     if (existingBook) {
       return res.status(400).json({ message: "Book already exists" });
     }
 
+    // Create and save the new book
     const newBook = new BookModel(req.body);
     await newBook.save();
+    
     res.status(201).json({ message: "Book added successfully", book: newBook });
   } catch (error) {
+    console.error("Error adding book:", error);
     res.status(500).json({ message: "Failed to add book", error });
   }
 });
 
-// ✅ Get all books from MongoDB
+
 router.get("/all", async (req, res) => {
   try {
-    const books = await BookModel.find(); // Fetch books from MongoDB
+    const books = await BookModel.find();  // Fetch all books
     res.status(200).json(books);
   } catch (error) {
     console.error("Error fetching books:", error);
@@ -33,8 +41,8 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// ✅ Get a specific book by ID
-router.get("/all/:id", async (req, res) => {
+
+router.get("/all/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
     const book = await BookModel.findById(id);
@@ -50,11 +58,15 @@ router.get("/all/:id", async (req, res) => {
   }
 });
 
-// ✅ Update a book by ID
-router.put("/change/:id", async (req, res) => {
+
+router.put("/change/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, author, genre, coverImage } = req.body;
+
+    if (!title || !author || !genre || !coverImage) {
+      return res.status(400).json({ message: "Please fill in all fields" });
+    }
 
     const updatedBook = await BookModel.findByIdAndUpdate(
       id,
@@ -73,8 +85,8 @@ router.put("/change/:id", async (req, res) => {
   }
 });
 
-// ✅ Delete a book by ID
-router.delete("/delete/:id", async (req, res) => {
+
+router.delete("/delete/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
     const deletedBook = await BookModel.findByIdAndDelete(id);
