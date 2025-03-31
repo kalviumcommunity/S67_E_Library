@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import instance from "../axiosInstance.js";
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
@@ -22,7 +23,7 @@ const BookList = () => {
   // Handle Delete Book
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/delete/${id}`);
+      await instance.delete(`http://localhost:5000/api/delete/${id}`);
       fetchBooks(); // Refresh book list after deletion
     } catch (error) {
       console.error("Error deleting book:", error);

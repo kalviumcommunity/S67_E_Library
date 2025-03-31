@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import instance from "../axiosInstance.js";
 
 const AddBook = () => {
   const [book, setBook] = useState({
@@ -21,7 +21,7 @@ const AddBook = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/add", book);
+      await instance.post("http://localhost:5000/api/add", book);
       refreshBooks(); // ✅ Refresh book list
       navigate("/books"); // ✅ Redirect to book list
     } catch (error) {
