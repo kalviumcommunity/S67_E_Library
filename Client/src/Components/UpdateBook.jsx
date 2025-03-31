@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import instance from "../axiosInstance.js";
 
 const UpdateBook = () => {
   const { id } = useParams(); // Get book ID from URL
@@ -17,7 +17,7 @@ const UpdateBook = () => {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/all/${id}`);
+        const response = await instance.get(`http://localhost:5000/api/all/${id}`);
         setBook(response.data);
       } catch (error) {
         console.error("Error fetching book:", error);
@@ -36,7 +36,7 @@ const UpdateBook = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/change/${id}`, book);
+      await instance.put(`http://localhost:5000/api/change/${id}`, book);
       navigate("/books"); // Redirect to book list after update
     } catch (error) {
       console.error("Error updating book:", error);
