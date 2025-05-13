@@ -19,7 +19,7 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.SECRET);
-    console.log("Token verified:", decoded);
+    console.log("Token verified:");
 
     
     const user = await UserModel.findById(decoded.id);
@@ -28,8 +28,11 @@ const auth = async (req, res, next) => {
     }
 
     req.user = user;
+    req.userId = user._id;
     next();
-  } catch (err) {
+  } 
+  
+  catch (err) {
     console.log("error in auth middleware", err);
     res.status(401).json({ message: "Authentication failed" });
   }

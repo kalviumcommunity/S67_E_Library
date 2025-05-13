@@ -72,8 +72,7 @@ bookRouter.put("/:id", auth, checkRole('author'), async (req, res) => {
     const { id } = req.params;
     const { title, author, genre, coverImage } = req.body;
 
-    const { page = 1, limit = 10 } = req.query;
-    const book = await BookModel.findById(id).populate('createdBy', 'username email').skip((page - 1) * limit).limit(parseInt(limit));
+    const book = await BookModel.findById(id).populate('createdBy', 'username email');
     if(!book){
       return res.status(404).json({ message: "Book not found" });
     }
@@ -101,8 +100,7 @@ bookRouter.delete("/:id", auth, checkRole('author'), async (req, res) => {
   try {
     const { id } = req.params;
     
-    const { page = 1, limit = 10 } = req.query;
-    const book = await BookModel.findById(id).populate('createdBy', 'username email').skip((page - 1) * limit).limit(parseInt(limit));
+    const book = await BookModel.findById(id).populate('createdBy', 'username email');
     if(!book){
       return res.status(404).json({ message: "Book not found" });
     }
