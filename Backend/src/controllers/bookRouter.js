@@ -33,7 +33,7 @@ bookRouter.post("/", auth, checkRole('author'), async (req, res) => {
     res.status(201).json({ message: "Book added successfully", book: newBook });
   } catch (error) {
     console.error("Error adding book:", error);
-    res.status(500).json({ message: "Failed to add book", error });
+    res.status(500).json({ message: "Failed to add book" });
   }
 });
 
@@ -41,11 +41,18 @@ bookRouter.post("/", auth, checkRole('author'), async (req, res) => {
 bookRouter.get("/", async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    const books = await BookModel.find().skip((page - 1) * limit).limit(parseInt(limit));
-    res.status(200).json(books);
+    const books = await BookModel.find({ isDeleted: { $ne: true } }).skip((page - 1) * limit).limit(parseInt(limit));
+    const totalBooks = await BookModel.countDocuments({ isDeleted: { $ne: true } });
+
+    res.status(200).json({
+      page: parseInt(page),
+      totalPages: Math.ceil(totalBooks / limit),
+      totalBooks,
+      books
+    });
   } catch (error) {
     console.error("Error fetching books:", error);
-    res.status(500).json({ message: "Failed to fetch books", error });
+    res.status(500).json({ message: "Failed to fetch books"});
   }
 });
 
@@ -53,7 +60,7 @@ bookRouter.get("/", async (req, res) => {
 bookRouter.get("/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const book = await BookModel.findById(id);
+    const book = await BookModel.findOne({ _id: id, isDeleted: { $ne: true } }).populate('createdBy', 'username email');;
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
@@ -62,7 +69,7 @@ bookRouter.get("/:id", auth, async (req, res) => {
     res.status(200).json(book);
   } catch (error) {
     console.error("Error fetching book:", error);
-    res.status(500).json({ message: "Failed to fetch book", error });
+    res.status(500).json({ message: "Failed to fetch book" });
   }
 });
 
@@ -72,7 +79,7 @@ bookRouter.put("/:id", auth, checkRole('author'), async (req, res) => {
     const { id } = req.params;
     const { title, author, genre, coverImage } = req.body;
 
-    const book = await BookModel.findById(id).populate('createdBy', 'username email');
+    const book = await BookModel.findById(id);
     if(!book){
       return res.status(404).json({ message: "Book not found" });
     }
@@ -86,12 +93,13 @@ bookRouter.put("/:id", auth, checkRole('author'), async (req, res) => {
     book.genre = genre;
     book.coverImage = coverImage;
 
-    const updatedBook = await book.save();
+    await book.save();
+    const updatedBook = await BookModel.findById(id).populate('createdBy', 'username email');
 
     res.status(200).json({ message: "Book updated successfully", book: updatedBook });
   } catch (error) {
     console.error("Error updating book:", error);
-    res.status(500).json({ message: "Failed to update book", error });
+    res.status(500).json({ message: "Failed to update book"});
   }
 });
 
@@ -100,7 +108,7 @@ bookRouter.delete("/:id", auth, checkRole('author'), async (req, res) => {
   try {
     const { id } = req.params;
     
-    const book = await BookModel.findById(id).populate('createdBy', 'username email');
+    const book = await BookModel.findById(id);
     if(!book){
       return res.status(404).json({ message: "Book not found" });
     }
@@ -109,12 +117,13 @@ bookRouter.delete("/:id", auth, checkRole('author'), async (req, res) => {
       return res.status(403).json({ message: "You are not allowed to delete this book" });
     }
     
-    const deletedBook = await book.deleteOne();
+    book.isDeleted = true;
+    await book.save();
 
-    res.status(200).json({ message: "Book deleted successfully", book: deletedBook });
+    res.status(200).json({ message: "Book deleted successfully" });
   } catch (error) {
     console.error("Error deleting book:", error);
-    res.status(500).json({ message: "Failed to delete book", error });
+    res.status(500).json({ message: "Failed to delete book"});
   }
 });
 
