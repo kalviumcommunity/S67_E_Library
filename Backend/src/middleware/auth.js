@@ -18,9 +18,20 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ message: "token is missing" });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRET);
-    console.log("Token verified:");
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.SECRET);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        return res.status(401).json({ message: "Token has expired" });
+      } else if (error.name === "JsonWebTokenError") {
+        return res.status(401).json({ message: "Invalid token" });
+      } else {
+        return res.status(401).json({ message: "Failed to authenticate token" });
+      }
+    }
 
+    console.log("Token verified");
     
     const user = await UserModel.findById(decoded.id);
     if (!user) {

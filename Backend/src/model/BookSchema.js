@@ -29,16 +29,22 @@ const bookSchema = new Schema({
     },
 
     description: {
-    type: String
+        type: String
     },
 
     review: {
-    type: String
+        type: String
     },
 
     rating: {
-    type: Number
+        type: Number
+    },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
+
 
 },{timestamps:true});
 
