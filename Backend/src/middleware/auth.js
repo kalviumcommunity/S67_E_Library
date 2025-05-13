@@ -1,53 +1,37 @@
-// const jwt = require("jsonwebtoken");        // Import JWT for token verification
-// require("dotenv").config();                 // Load environment variables
+const jwt = require("jsonwebtoken");
+const UserModel = require("../model/UserSchema");
+require('dotenv').config();
 
-// const auth = (req, res, next) => {
-//   const tokenauth = req.headers.authorization;  // Extract token from headers
+const auth = async (req, res, next) => {
+  try {
+    if (!process.env.SECRET) {
+        return res.status(401).json({ message: "SECRET is missing" });
+    }
 
-//   // ✅ Check if token exists and is correctly formatted
-//   if (!tokenauth || !tokenauth.startsWith("Bearer ")) {
-//     return res.status(401).json({ message: "Unauthorized: No token provided" });
-//   }
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "Authorization header missing" });
+    }
 
-//   const token = tokenauth.split(" ")[1];    // Extract the actual token
-//   const secret = process.env.private_key;   // Load the JWT secret from .env
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!token) {
+      return res.status(401).json({ message: "token is missing" });
+    }
 
-//   jwt.verify(token, secret, (err, decoded) => {
-//     if (err) {
-//       console.error("Error in auth middleware:", err);
-//       return res.status(401).json({ message: "Invalid or expired token" });
-//     }
+    const decoded = jwt.verify(token, process.env.SECRET);
+    console.log("Token verified:", decoded);
 
-//     req.user = decoded.email;   // ✅ Attach the user email to req.user
-//     next();                      // ✅ Proceed to the next middleware
-//   });
-// };
+    
+    const user = await UserModel.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
 
-// module.exports = auth;
-
-
-
-
-
-
-
-const auth = (req, res, next) => {
-  const tokenauth = req.headers.authorization; // ✅ Using lowercase `authorization`
-  
-  // Static token for validation
-  const STATIC_TOKEN = "your-static-secret-token";
-
-  if (!tokenauth) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-
-  const token = tokenauth.split(" ")[1]; // Extract the token
-
-  if (token === STATIC_TOKEN) {
-    console.log("✅ Token verified successfully");
+    req.user = user;
     next();
-  } else {
-    return res.status(403).json({ message: "Forbidden: Invalid token" });
+  } catch (err) {
+    console.log("error in auth middleware", err);
+    res.status(401).json({ message: "Authentication failed" });
   }
 };
 
