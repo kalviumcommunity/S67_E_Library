@@ -3,6 +3,7 @@ const bookRouter = express.Router();
 const BookModel = require("../model/BookSchema");
 const auth = require("../middleware/auth");
 const checkRole = require("../middleware/roleCheck");
+const { isOwner } = require("../utils/ownership");
 
 
 bookRouter.post("/", auth, checkRole('author'), async (req, res) => {
@@ -84,8 +85,10 @@ bookRouter.put("/:id", auth, checkRole('author'), async (req, res) => {
       return res.status(404).json({ message: "Book not found" });
     }
     
-    if (book.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not allowed to modify this book" });
+    if (!isOwner(book.createdBy, req.user._id)) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to modify this book" });
     }
     
     book.title = title;
@@ -113,10 +116,12 @@ bookRouter.delete("/:id", auth, checkRole('author'), async (req, res) => {
       return res.status(404).json({ message: "Book not found" });
     }
     
-    if (book.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not allowed to delete this book" });
+    if (!isOwner(book.createdBy, req.user._id)) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to delete this book" });
     }
-    
+
     book.isDeleted = true;
     await book.save();
 
