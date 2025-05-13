@@ -1,6 +1,14 @@
 const { model, Schema } =require( "mongoose");
 
 const bookSchema = new Schema({
+
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
+
     title: {
         type: String,
         required: true
@@ -17,8 +25,21 @@ const bookSchema = new Schema({
     },
     
     coverImage: {
-        type: String,
+        type: String
+    },
+
+    description: {
+    type: String
+    },
+
+    review: {
+    type: String
+    },
+
+    rating: {
+    type: Number
     }
+
 },{timestamps:true});
 
 const BookModel = model('Book', bookSchema);
