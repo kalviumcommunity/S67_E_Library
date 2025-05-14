@@ -1,15 +1,21 @@
 import axios from "axios";
 
-const instance = axios.create({
-  baseURL: "http://localhost:5000/api",
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000/api",  // ✅ Base URL
 });
 
-// ✅ Attach the static token to every request
-const STATIC_TOKEN = "your-static-secret-token";
+// Add token to all requests
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-instance.interceptors.request.use((config) => {
-  config.headers.Authorization = `Bearer ${STATIC_TOKEN}`;
-  return config;
-});
-
-export default instance;
+export default axiosInstance;
